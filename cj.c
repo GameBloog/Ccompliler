@@ -558,3 +558,192 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
+
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <string.h>
+
+// #pragma pack(1)
+
+// #define LARGURA_MAXIMA 1024
+// #define ALTURA_MAXIMA 1024
+// #define CABECALHO_TAM 54
+
+// typedef struct {
+//     unsigned char azul;
+//     unsigned char verde;
+//     unsigned char vermelho;
+// } Pixel;
+
+// Pixel imagem[ALTURA_MAXIMA][LARGURA_MAXIMA];
+// unsigned char vetorR[LARGURA_MAXIMA * ALTURA_MAXIMA];
+// unsigned char vetorG[LARGURA_MAXIMA * ALTURA_MAXIMA];
+// unsigned char vetorB[LARGURA_MAXIMA * ALTURA_MAXIMA];
+// unsigned char cabecalho[CABECALHO_TAM];
+
+// int largura, altura, padding;
+// int total_pixels = 0;
+// int contador_descompactar = 0;
+
+// void calcular_padding() {
+//     padding = (4 - (largura * 3) % 4) % 4;
+// }
+
+// void compactar(int ini_linha, int fim_linha, int ini_coluna, int fim_coluna) {
+//     int linhas = fim_linha - ini_linha + 1;
+//     int colunas = fim_coluna - ini_coluna + 1;
+
+//     if (linhas <= 3 || colunas <= 3) {
+//         int meio_linha = (ini_linha + fim_linha) / 2;
+//         int meio_coluna = (ini_coluna + fim_coluna) / 2;
+//         Pixel p = imagem[meio_linha][meio_coluna];
+
+//         vetorR[total_pixels] = p.vermelho;
+//         vetorG[total_pixels] = p.verde;
+//         vetorB[total_pixels] = p.azul;
+//         total_pixels++;
+//         return;
+//     }
+
+//     int meio_linha = (ini_linha + fim_linha) / 2;
+//     int meio_coluna = (ini_coluna + fim_coluna) / 2;
+
+//     compactar(ini_linha, meio_linha, ini_coluna, meio_coluna);
+//     compactar(ini_linha, meio_linha, meio_coluna + 1, fim_coluna);
+//     compactar(meio_linha + 1, fim_linha, ini_coluna, meio_coluna);
+//     compactar(meio_linha + 1, fim_linha, meio_coluna + 1, fim_coluna);
+// }
+
+// void descompactar(int ini_linha, int fim_linha, int ini_coluna, int fim_coluna) {
+//     int linhas = fim_linha - ini_linha + 1;
+//     int colunas = fim_coluna - ini_coluna + 1;
+
+//     if (linhas <= 3 || colunas <= 3) {
+//         Pixel p = {
+//             .vermelho = vetorR[contador_descompactar],
+//             .verde = vetorG[contador_descompactar],
+//             .azul = vetorB[contador_descompactar]
+//         };
+//         contador_descompactar++;
+
+//         for (int i = ini_linha; i <= fim_linha; i++) {
+//             for (int j = ini_coluna; j <= fim_coluna; j++) {
+//                 imagem[i][j] = p;
+//             }
+//         }
+//         return;
+//     }
+
+//     int meio_linha = (ini_linha + fim_linha) / 2;
+//     int meio_coluna = (ini_coluna + fim_coluna) / 2;
+
+//     descompactar(ini_linha, meio_linha, ini_coluna, meio_coluna);
+//     descompactar(ini_linha, meio_linha, meio_coluna + 1, fim_coluna);
+//     descompactar(meio_linha + 1, fim_linha, ini_coluna, meio_coluna);
+//     descompactar(meio_linha + 1, fim_linha, meio_coluna + 1, fim_coluna);
+// }
+
+// int ler_imagem(const char *nome) {
+//     FILE *entrada = fopen(nome, "rb");
+//     if (!entrada) return 0;
+
+//     fread(cabecalho, sizeof(unsigned char), CABECALHO_TAM, entrada);
+//     largura = *(int*)&cabecalho[18];
+//     altura = *(int*)&cabecalho[22];
+//     calcular_padding();
+
+//     for (int i = altura - 1; i >= 0; i--) {
+//         for (int j = 0; j < largura; j++) {
+//             fread(&imagem[i][j], sizeof(Pixel), 1, entrada);
+//         }
+//         fseek(entrada, padding, SEEK_CUR);
+//     }
+//     fclose(entrada);
+//     return 1;
+// }
+
+// int salvar_imagem(const char *nome) {
+//     FILE *saida = fopen(nome, "wb");
+//     if (!saida) return 0;
+
+//     fwrite(cabecalho, sizeof(unsigned char), CABECALHO_TAM, saida);
+//     for (int i = altura - 1; i >= 0; i--) {
+//         for (int j = 0; j < largura; j++) {
+//             fwrite(&imagem[i][j], sizeof(Pixel), 1, saida);
+//         }
+//         for (int p = 0; p < padding; p++) {
+//             fputc(0x00, saida);
+//         }
+//     }
+//     fclose(saida);
+//     return 1;
+// }
+
+// int salvar_compactado(const char *nome) {
+//     FILE *arquivo = fopen(nome, "wb");
+//     if (!arquivo) return 0;
+
+//     fwrite(cabecalho, sizeof(unsigned char), CABECALHO_TAM, arquivo);
+//     for (int i = 0; i < total_pixels; i++) {
+//         fputc(vetorR[i], arquivo);
+//         fputc(vetorG[i], arquivo);
+//         fputc(vetorB[i], arquivo);
+//     }
+//     fclose(arquivo);
+//     return 1;
+// }
+
+// int ler_compactado(const char *nome) {
+//     FILE *arquivo = fopen(nome, "rb");
+//     if (!arquivo) return 0;
+
+//     fread(cabecalho, sizeof(unsigned char), CABECALHO_TAM, arquivo);
+//     largura = *(int*)&cabecalho[18];
+//     altura = *(int*)&cabecalho[22];
+//     calcular_padding();
+
+//     int i = 0;
+//     while (fread(&vetorR[i], sizeof(unsigned char), 1, arquivo) == 1 &&
+//            fread(&vetorG[i], sizeof(unsigned char), 1, arquivo) == 1 &&
+//            fread(&vetorB[i], sizeof(unsigned char), 1, arquivo) == 1) {
+//         i++;
+//     }
+//     fclose(arquivo);
+//     return i;
+// }
+
+// int main() {
+//     if (!ler_imagem("imagemOriginal.bmp")) {
+//         printf("Erro ao abrir imagemOriginal.bmp\n");
+//         return 1;
+//     }
+
+//     compactar(0, altura - 1, 0, largura - 1);
+
+//     if (!salvar_compactado("imagemCompactada.zmp")) {
+//         printf("Erro ao criar imagemCompactada.zmp\n");
+//         return 1;
+//     }
+
+//     int total_lido = ler_compactado("imagemCompactada.zmp");
+//     if (total_lido <= 0) {
+//         printf("Erro ao abrir imagemCompactada.zmp\n");
+//         return 1;
+//     }
+
+//     contador_descompactar = 0;
+//     descompactar(0, altura - 1, 0, largura - 1);
+
+//     if (!salvar_imagem("imagemDescompactada.bmp")) {
+//         printf("Erro ao criar imagemDescompactada.bmp\n");
+//         return 1;
+//     }
+
+//     printf("\nCompactação e descompactação concluídas!\n");
+//     printf("Imagem original: imagemOriginal.bmp\n");
+//     printf("Imagem compactada: imagemCompactada.zmp\n");
+//     printf("Imagem descompactada: imagemDescompactada.bmp\n");
+//     printf("Total de pixels representativos: %d\n", total_pixels);
+//     return 0;
+// }
